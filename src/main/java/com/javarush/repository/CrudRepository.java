@@ -11,4 +11,6 @@ public interface CrudRepository<T, ID> {
     T getById(final ID id);
 
     T save(final T entity);
+
+    void deleteById(final ID id);
 }

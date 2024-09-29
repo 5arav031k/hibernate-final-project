@@ -4,7 +4,6 @@ import com.javarush.config.HibernateUtil;
 import com.javarush.domain.entity.Country;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 
 import java.util.List;
 
@@ -21,14 +20,17 @@ public class CountryRepository implements CrudRepository<Country, Integer> {
 
     @Override
     public List<Country> getAll() {
-        return sessionFactory.getCurrentSession().createQuery("select c from Country c join fetch c.languages", Country.class).list();
+        return sessionFactory.getCurrentSession()
+                .createQuery("select c from Country c join fetch c.languages", Country.class)
+                .list();
     }
 
     @Override
     public Country getById(Integer id) {
-        Query<Country> query = sessionFactory.getCurrentSession().createQuery("select c from Country c where c.id = :id", Country.class);
-        query.setParameter("id", id);
-        return query.uniqueResult();
+        return sessionFactory.getCurrentSession()
+                .createQuery("select c from Country c where c.id = :id", Country.class)
+                .setParameter("id", id)
+                .uniqueResult();
     }
 
     @Override
@@ -38,5 +40,15 @@ public class CountryRepository implements CrudRepository<Country, Integer> {
         session.persist(entity);
         session.getTransaction().commit();
         return entity;
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        Session session = sessionFactory.getCurrentSession();
+        session.beginTransaction();
+        session.createQuery("delete from Country c where c.id=:id")
+                .setParameter("id", id)
+                .executeUpdate();
+        session.getTransaction().commit();
     }
 }
