@@ -1,4 +1,4 @@
-package com.javarush.domain;
+package com.javarush.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,7 +9,7 @@ import lombok.Data;
 public class City {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     private String name;
 
@@ -19,5 +19,5 @@ public class City {
 
     private String district;
 
-    private int population;
+    private Integer population;
 }
