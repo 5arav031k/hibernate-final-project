@@ -1,8 +1,9 @@
-package com.javarush.service;
+package com.javarush.service.impl;
 
 import com.javarush.domain.entity.City;
 import com.javarush.domain.exceptions.EntityNotFoundException;
 import com.javarush.repository.CityRepository;
+import com.javarush.service.CityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,6 +17,10 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public City getCityById(int cityId) {
+        if (cityId <= 0) {
+            log.error("Invalid cityId: {}", cityId);
+            throw new IllegalArgumentException("Id must be greater than 0");
+        }
         City city = cityRepository.getById(cityId);
         if (city == null) {
             log.error("City with id {} not found", cityId);

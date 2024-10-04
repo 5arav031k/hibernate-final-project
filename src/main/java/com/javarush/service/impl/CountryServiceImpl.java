@@ -1,8 +1,9 @@
-package com.javarush.service;
+package com.javarush.service.impl;
 
 import com.javarush.domain.entity.Country;
 import com.javarush.domain.exceptions.EntityNotFoundException;
 import com.javarush.repository.CountryRepository;
+import com.javarush.service.CountryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
