@@ -36,7 +36,7 @@ public class CityRepository implements CrudRepository<City, Integer> {
     @Override
     public City getById(final Integer id) {
         return sessionFactory.getCurrentSession()
-                .createQuery("select c from City c where c.id=:id", City.class)
+                .createQuery("select c from City c join fetch c.country where c.id=:id", City.class)
                 .setParameter("id", id)
                 .uniqueResult();
     }

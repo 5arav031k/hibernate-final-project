@@ -1,16 +1,12 @@
 package com.javarush.redis;
 
 import com.javarush.domain.enums.Continent;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 public class CityCountry {
     private Integer id;
 
