@@ -1,7 +1,10 @@
 package com.javarush.service.impl;
 
+import com.javarush.cache.RedisRepository;
+import com.javarush.converter.DataConverter;
 import com.javarush.domain.entity.Country;
 import com.javarush.domain.exceptions.EntityNotFoundException;
+import com.javarush.redis.CityCountry;
 import com.javarush.repository.CountryRepository;
 import com.javarush.service.CountryService;
 import lombok.RequiredArgsConstructor;
@@ -14,15 +17,35 @@ import java.util.List;
 public class CountryServiceImpl implements CountryService {
 
     private final CountryRepository countryRepository;
+    private final RedisRepository redisRepository;
 
     @Override
     public Country getCountryById(int countryId) {
-        Country city = countryRepository.getById(countryId);
-        if (city == null) {
-            log.error("Country with id {} not found", countryId);
-            throw new EntityNotFoundException(countryId);
+        if (countryId <= 0) {
+            log.error("Invalid country id: {}", countryId);
+            throw new IllegalArgumentException("Id must be greater than 0");
         }
-        return city;
+
+        String name = "getCountryById:" + countryId;
+
+        if (redisRepository.exist(name)) {
+            CityCountry cityCountry = redisRepository.get(name, CityCountry.class);
+            return DataConverter.convertToCounty(cityCountry);
+        } else {
+            Country country = countryRepository.getById(countryId);
+            if (country == null) {
+                log.error("Country with id {} not found", countryId);
+                throw new EntityNotFoundException(countryId);
+            }
+
+            CityCountry cityCountry = DataConverter.convertToCityCountry(country);
+            redisRepository.setIfFrequentlyUsed(name, cityCountry);
+
+            return country;
+
+        }
+
+
     }
 
     @Override
@@ -51,11 +74,16 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public void deleteCountryById(int countryId) {
+        if (countryId <= 0) {
+            log.error("Invalid country id: {}", countryId);
+            throw new IllegalArgumentException("Id must be greater than 0");
+        }
         Country country = countryRepository.getById(countryId);
         if (country == null) {
             log.error("Country with id {} not found", countryId);
             throw new EntityNotFoundException(countryId);
         }
         countryRepository.deleteById(countryId);
+        log.info("Country with id {} deleted", countryId);
     }
 }

@@ -1,7 +1,10 @@
 package com.javarush.service.impl;
 
+import com.javarush.cache.RedisRepository;
+import com.javarush.converter.DataConverter;
 import com.javarush.domain.entity.City;
 import com.javarush.domain.exceptions.EntityNotFoundException;
+import com.javarush.redis.CityCountry;
 import com.javarush.repository.CityRepository;
 import com.javarush.service.CityService;
 import lombok.RequiredArgsConstructor;
@@ -14,19 +17,32 @@ import java.util.List;
 public class CityServiceImpl implements CityService {
 
     private final CityRepository cityRepository;
+    private final RedisRepository redisRepository;
 
     @Override
     public City getCityById(int cityId) {
         if (cityId <= 0) {
-            log.error("Invalid cityId: {}", cityId);
+            log.error("Invalid city id: {}", cityId);
             throw new IllegalArgumentException("Id must be greater than 0");
         }
-        City city = cityRepository.getById(cityId);
-        if (city == null) {
-            log.error("City with id {} not found", cityId);
-            throw new EntityNotFoundException(cityId);
+
+        String name = "getCityById:" + cityId;
+
+        if (redisRepository.exist(name)) {
+            CityCountry cityCountry = redisRepository.get(name, CityCountry.class);
+            return DataConverter.convertToCity(cityCountry);
+        } else {
+            City city = cityRepository.getById(cityId);
+            if (city == null) {
+                log.error("City with id {} not found", cityId);
+                throw new EntityNotFoundException(cityId);
+            }
+
+            CityCountry cityCountry = DataConverter.convertToCityCountry(city);
+            redisRepository.setIfFrequentlyUsed(name, cityCountry);
+
+            return city;
         }
-        return city;
     }
 
     @Override
@@ -55,10 +71,15 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public void deleteCityById(int cityId) {
+        if (cityId <= 0) {
+            log.error("Invalid city id: {}", cityId);
+            throw new IllegalArgumentException("Id must be greater than 0");
+        }
         if (cityRepository.getById(cityId) == null) {
             log.error("City with id {} not found", cityId);
             throw new EntityNotFoundException(cityId);
         }
         cityRepository.deleteById(cityId);
+        log.info("City with id {} deleted", cityId);
     }
 }
