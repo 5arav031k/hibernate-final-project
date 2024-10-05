@@ -5,7 +5,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-public class Language {
+public class Language implements RedisDto {
     private String language;
 
     private Boolean isOfficial;

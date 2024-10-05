@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 @Data
-public class CityCountry {
+public class CityCountry implements RedisDto {
     private Integer id;
 
     private String name;
