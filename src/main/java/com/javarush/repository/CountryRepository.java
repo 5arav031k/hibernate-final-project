@@ -4,6 +4,7 @@ import com.javarush.config.HibernateUtil;
 import com.javarush.domain.entity.Country;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import java.util.List;
 
@@ -13,42 +14,47 @@ public class CountryRepository implements CrudRepository<Country, Integer> {
 
     @Override
     public long getCount() {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select count(c) from Country c", Long.class)
-                .uniqueResult();
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("select count(c) from Country c", Long.class)
+                    .uniqueResult();
+        }
     }
 
     @Override
     public List<Country> getAll() {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select c from Country c join fetch c.languages", Country.class)
-                .list();
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("select c from Country c join fetch c.languages", Country.class)
+                    .list();
+        }
     }
 
     @Override
     public Country getById(Integer id) {
-        return sessionFactory.getCurrentSession()
-                .createQuery("select c from Country c where c.id = :id", Country.class)
-                .setParameter("id", id)
-                .uniqueResult();
+        try (Session session = sessionFactory.openSession()) {
+            return session.createQuery("select c from Country c where c.id = :id", Country.class)
+                    .setParameter("id", id)
+                    .uniqueResult();
+        }
     }
 
     @Override
     public Country save(Country entity) {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        session.persist(entity);
-        session.getTransaction().commit();
-        return entity;
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.persist(entity);
+            transaction.commit();
+            return entity;
+        }
     }
 
     @Override
     public void deleteById(Integer id) {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        session.createQuery("delete from Country c where c.id=:id")
-                .setParameter("id", id)
-                .executeUpdate();
-        session.getTransaction().commit();
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createQuery("delete from Country c where c.id=:id")
+                    .setParameter("id", id)
+                    .executeUpdate();
+            transaction.commit();
+        }
     }
 }
