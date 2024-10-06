@@ -44,8 +44,6 @@ public class CountryServiceImpl implements CountryService {
             return country;
 
         }
-
-
     }
 
     @Override
@@ -53,6 +51,11 @@ public class CountryServiceImpl implements CountryService {
         if (country == null) {
             log.error("Cannot save county because county is null");
             throw new IllegalArgumentException("Country cannot be null");
+        }
+        Integer countryId = country.getId();
+        if (countryId == null || countryId <= 0) {
+            log.error("Invalid country id: {}", countryId);
+            throw new IllegalArgumentException("Id must be greater than 0");
         }
         try {
             return countryRepository.save(country);
@@ -64,12 +67,22 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public List<Country> fetchAllCountries() {
-        return countryRepository.getAll();
+        try {
+            return countryRepository.getAll();
+        } catch (Exception e) {
+            log.error("Cannot fetch all countries");
+            throw new IllegalArgumentException("Cannot fetch all countries");
+        }
     }
 
     @Override
     public long fetchCountriesCount() {
-        return countryRepository.getCount();
+        try {
+            return countryRepository.getCount();
+        } catch (Exception e) {
+            log.error("Cannot fetch countries count");
+            throw new IllegalArgumentException("Cannot fetch countries count");
+        }
     }
 
     @Override
@@ -83,7 +96,12 @@ public class CountryServiceImpl implements CountryService {
             log.error("Country with id {} not found", countryId);
             throw new EntityNotFoundException(countryId);
         }
-        countryRepository.deleteById(countryId);
+        try {
+            countryRepository.deleteById(countryId);
+        } catch (Exception e) {
+            log.error("Cannot delete county: {}", e.getMessage());
+            throw new IllegalArgumentException("Cannot delete county");
+        }
         log.info("Country with id {} deleted", countryId);
     }
 }

@@ -51,6 +51,11 @@ public class CityServiceImpl implements CityService {
             log.error("Cannot save city because city is null");
             throw new IllegalArgumentException("City cannot be null");
         }
+        Integer cityId = city.getId();
+        if (cityId == null || cityId <= 0) {
+            log.error("Invalid city id: {}", cityId);
+            throw new IllegalArgumentException("Id must be greater than 0");
+        }
         try {
             return cityRepository.save(city);
         } catch (Exception e) {
@@ -61,12 +66,22 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public List<City> fetchAllCities() {
-        return cityRepository.getAll();
+        try {
+            return cityRepository.getAll();
+        } catch (Exception e) {
+            log.error("Cannot fetch all cities: {}", e.getMessage());
+            throw new IllegalArgumentException("Cannot fetch all cities");
+        }
     }
 
     @Override
     public long fetchCitiesCount() {
-        return cityRepository.getCount();
+        try {
+            return cityRepository.getCount();
+        } catch (Exception e) {
+            log.error("Cannot fetch cities count: {}", e.getMessage());
+            throw new IllegalArgumentException("Cannot fetch cities count");
+        }
     }
 
     @Override
@@ -79,7 +94,12 @@ public class CityServiceImpl implements CityService {
             log.error("City with id {} not found", cityId);
             throw new EntityNotFoundException(cityId);
         }
-        cityRepository.deleteById(cityId);
+        try {
+            cityRepository.deleteById(cityId);
+        } catch (Exception e) {
+            log.error("Cannot delete city: {}", e.getMessage());
+            throw new IllegalArgumentException("Cannot delete city");
+        }
         log.info("City with id {} deleted", cityId);
     }
 }
