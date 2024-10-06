@@ -59,6 +59,15 @@ public class DataConverter {
         country.setSurfaceArea(cityCountry.getCountrySurfaceArea());
         country.setPopulation(cityCountry.getCountryPopulation());
         country.setAlternativeCode(cityCountry.getAlternativeCountryCode());
+        Set<Language> languages = cityCountry.getLanguages();
+        Set<CountryLanguage> countryLanguages = languages.stream().map(l -> {
+            CountryLanguage countryLanguage = new CountryLanguage();
+            countryLanguage.setLanguage(l.getLanguage());
+            countryLanguage.setOfficial(l.getIsOfficial());
+            countryLanguage.setPercentage(l.getPercentage());
+            return countryLanguage;
+        }).collect(Collectors.toSet());
+        country.setLanguages(countryLanguages);
         return country;
     }
 }
