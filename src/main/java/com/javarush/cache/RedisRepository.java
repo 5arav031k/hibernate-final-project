@@ -2,7 +2,6 @@ package com.javarush.cache;
 
 import com.google.gson.Gson;
 import com.javarush.config.RedisConfig;
-import com.javarush.redis.RedisDto;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.UnifiedJedis;
 
@@ -30,7 +29,7 @@ public class RedisRepository {
         return gson.fromJson(jedis.get(cacheKey), classOfT);
     }
 
-    public void setIfFrequentlyUsed(String name, RedisDto data) {
+    public <T> void setIfFrequentlyUsed(String name, T data) {
         String cacheKey = "cache:" + name;
 
         topKRepository.addItem(KEY, name);
@@ -38,9 +37,9 @@ public class RedisRepository {
         long count = topKRepository.getCount(KEY, name);
         if (count >= THRESHOLD) {
             jedis.set(cacheKey, gson.toJson(data));
-            log.debug("request is frequently used, add in jedis");
+            log.info("request is frequently used, add in jedis");
         } else {
-            log.debug("request is not frequently used, skipping");
+            log.info("request is not frequently used, skipping");
         }
     }
 }

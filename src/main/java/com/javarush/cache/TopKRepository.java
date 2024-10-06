@@ -13,7 +13,7 @@ public class TopKRepository {
         if (!jedis.exists(key)) {
             jedis.topkReserve(key, k);
         } else {
-            log.info("TopK key already exists, skipping TOPK.RESERVE");
+            log.info("TopK key [{}] already exists, skipping TOPK.RESERVE", key);
         }
     }
 
@@ -22,7 +22,7 @@ public class TopKRepository {
     }
 
     public long getCount(String key, String item) {
-        String count = jedis.sendCommand(() -> SafeEncoder.encode("TOPK.COUNT"), SafeEncoder.encodeMany(key, String.valueOf(item))).toString();
+        String count = jedis.sendCommand(() -> SafeEncoder.encode("TOPK.COUNT"), SafeEncoder.encodeMany(key, item)).toString();
         return Long.parseLong(count.replaceAll("[\\[\\]]", ""));
     }
 }
