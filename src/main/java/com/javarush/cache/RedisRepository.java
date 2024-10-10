@@ -13,6 +13,7 @@ public class RedisRepository {
 
     private static final int THRESHOLD = 5;
     private static final String KEY = "topk:request";
+    private static final String CACHE_KEY = "cache:";
 
     public RedisRepository() {
         topKRepository = new TopKRepository();
@@ -20,26 +21,22 @@ public class RedisRepository {
     }
 
     public boolean exist(String name) {
-        String cacheKey = "cache:" + name;
-        return jedis.exists(cacheKey);
+        return jedis.exists(CACHE_KEY + name);
     }
 
     public <T> T get(String name, Class<T> classOfT) {
-        String cacheKey = "cache:" + name;
-        return gson.fromJson(jedis.get(cacheKey), classOfT);
+        return gson.fromJson(jedis.get(CACHE_KEY + name), classOfT);
     }
 
     public <T> void setIfFrequentlyUsed(String name, T data) {
-        String cacheKey = "cache:" + name;
-
         topKRepository.addItem(KEY, name);
 
         long count = topKRepository.getCount(KEY, name);
         if (count >= THRESHOLD) {
-            jedis.set(cacheKey, gson.toJson(data));
-            log.info("request is frequently used, add in jedis");
+            jedis.set(CACHE_KEY + name, gson.toJson(data));
+            log.info("Request is frequently used, add in Jedis");
         } else {
-            log.info("request is not frequently used, skipping");
+            log.info("Request is not frequently used, skipping");
         }
     }
 }

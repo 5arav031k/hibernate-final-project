@@ -57,51 +57,26 @@ public class CountryServiceImpl implements CountryService {
             log.error("Invalid country id: {}", countryId);
             throw new IllegalArgumentException("Id must be greater than 0");
         }
-        try {
-            return countryRepository.save(country);
-        } catch (Exception e) {
-            log.error("Cannot save county: {}", e.getMessage());
-            throw new IllegalArgumentException("Cannot save county");
-        }
+        return countryRepository.save(country);
     }
 
     @Override
     public List<Country> fetchAllCountries() {
-        try {
-            return countryRepository.getAll();
-        } catch (Exception e) {
-            log.error("Cannot fetch all countries");
-            throw new IllegalArgumentException("Cannot fetch all countries");
-        }
+        return countryRepository.getAll();
     }
 
     @Override
     public long fetchCountriesCount() {
-        try {
-            return countryRepository.getCount();
-        } catch (Exception e) {
-            log.error("Cannot fetch countries count");
-            throw new IllegalArgumentException("Cannot fetch countries count");
-        }
+        return countryRepository.getCount();
     }
 
     @Override
     public void deleteCountryById(int countryId) {
-        if (countryId <= 0) {
-            log.error("Invalid country id: {}", countryId);
-            throw new IllegalArgumentException("Id must be greater than 0");
-        }
-        Country country = countryRepository.getById(countryId);
-        if (country == null) {
+        if (countryRepository.getById(countryId) == null) {
             log.error("Country with id {} not found", countryId);
             throw new EntityNotFoundException(countryId);
         }
-        try {
-            countryRepository.deleteById(countryId);
-        } catch (Exception e) {
-            log.error("Cannot delete county: {}", e.getMessage());
-            throw new IllegalArgumentException("Cannot delete county");
-        }
+        countryRepository.deleteById(countryId);
         log.info("Country with id {} deleted", countryId);
     }
 }

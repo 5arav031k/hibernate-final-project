@@ -56,50 +56,26 @@ public class CityServiceImpl implements CityService {
             log.error("Invalid city id: {}", cityId);
             throw new IllegalArgumentException("Id must be greater than 0");
         }
-        try {
-            return cityRepository.save(city);
-        } catch (Exception e) {
-            log.error("Cannot save city: {}", e.getMessage());
-            throw new IllegalArgumentException("Cannot save city");
-        }
+        return cityRepository.save(city);
     }
 
     @Override
     public List<City> fetchAllCities() {
-        try {
-            return cityRepository.getAll();
-        } catch (Exception e) {
-            log.error("Cannot fetch all cities: {}", e.getMessage());
-            throw new IllegalArgumentException("Cannot fetch all cities");
-        }
+        return cityRepository.getAll();
     }
 
     @Override
     public long fetchCitiesCount() {
-        try {
-            return cityRepository.getCount();
-        } catch (Exception e) {
-            log.error("Cannot fetch cities count: {}", e.getMessage());
-            throw new IllegalArgumentException("Cannot fetch cities count");
-        }
+        return cityRepository.getCount();
     }
 
     @Override
     public void deleteCityById(int cityId) {
-        if (cityId <= 0) {
-            log.error("Invalid city id: {}", cityId);
-            throw new IllegalArgumentException("Id must be greater than 0");
-        }
         if (cityRepository.getById(cityId) == null) {
             log.error("City with id {} not found", cityId);
             throw new EntityNotFoundException(cityId);
         }
-        try {
-            cityRepository.deleteById(cityId);
-        } catch (Exception e) {
-            log.error("Cannot delete city: {}", e.getMessage());
-            throw new IllegalArgumentException("Cannot delete city");
-        }
+        cityRepository.deleteById(cityId);
         log.info("City with id {} deleted", cityId);
     }
 }
